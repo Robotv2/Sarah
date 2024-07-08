@@ -23,7 +23,6 @@ public class UpsertRequest implements Executor {
 
     @Override
     public int execute(Connection connection, DatabaseConfiguration databaseConfiguration, Logger logger) throws SQLException {
-
         StringBuilder insertQuery = new StringBuilder("INSERT INTO " + this.schema.getTableName() + " (");
         StringBuilder valuesQuery = new StringBuilder("VALUES (");
         StringBuilder onUpdateQuery = new StringBuilder();
@@ -53,8 +52,8 @@ public class UpsertRequest implements Executor {
             for (int i = 0; i < primaryKeys.size(); i++) {
                 onConflictQuery.append(i > 0 ? ", " : "").append(primaryKeys.get(i));
             }
-            onConflictQuery.append(") DO UPDATE SET ");
-            upsertQuery = insertQuery + valuesQuery.toString() + onConflictQuery + onUpdateQuery;
+            onConflictQuery.append(") DO UPDATE SET ").append(onUpdateQuery);
+            upsertQuery = insertQuery + valuesQuery.toString() + onConflictQuery;
         } else {
             onUpdateQuery.insert(0, " ON DUPLICATE KEY UPDATE ");
             upsertQuery = insertQuery + valuesQuery.toString() + onUpdateQuery;

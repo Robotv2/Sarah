@@ -1,7 +1,10 @@
 package fr.maxlego08.sarah;
 
+import fr.maxlego08.sarah.database.DatabaseType;
+
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Represents a connection to a MySQL database.
@@ -66,7 +69,14 @@ public abstract class DatabaseConnection {
         }
 
         try {
-            return connection.isValid(1);
+            if(databaseConfiguration.getDatabaseType() == DatabaseType.MYSQL) {
+                return connection.isValid(1);
+            } else {
+                try (Statement statement = connection.createStatement()) {
+                    statement.executeQuery("SELECT 1");
+                    return true;
+                }
+            }
         } catch (SQLException exception) {
             return false;
         }

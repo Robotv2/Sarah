@@ -52,8 +52,8 @@ public class UpsertRequest implements Executor {
             for (int i = 0; i < primaryKeys.size(); i++) {
                 onConflictQuery.append(i > 0 ? ", " : "").append(primaryKeys.get(i));
             }
-            onConflictQuery.append(") DO UPDATE SET ").append(onUpdateQuery);
-            upsertQuery = insertQuery + valuesQuery.toString() + onConflictQuery;
+            onConflictQuery.append(") DO UPDATE SET ");
+            upsertQuery = insertQuery + valuesQuery.toString() + onConflictQuery + onUpdateQuery;
         } else {
             onUpdateQuery.insert(0, " ON DUPLICATE KEY UPDATE ");
             upsertQuery = insertQuery + valuesQuery.toString() + onUpdateQuery;

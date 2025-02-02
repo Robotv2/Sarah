@@ -149,5 +149,7 @@ public interface Schema {
     SchemaType getSchemaType();
 
     Schema addColumn(ColumnDefinition column);
+
+    void setMigration(Migration migration);
 }
 

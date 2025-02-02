@@ -688,4 +688,8 @@ public class SchemaBuilder implements Schema {
     public SchemaType getSchemaType() {
         return this.schemaType;
     }
+
+    public void setMigration(Migration migration) {
+        this.migration = migration;
+    }
 }

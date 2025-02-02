@@ -13,6 +13,7 @@ import fr.maxlego08.sarah.logger.Logger;
 import fr.maxlego08.sarah.requests.AlterRequest;
 import fr.maxlego08.sarah.requests.CreateRequest;
 import fr.maxlego08.sarah.requests.DeleteRequest;
+import fr.maxlego08.sarah.requests.DropTableRequest;
 import fr.maxlego08.sarah.requests.InsertRequest;
 import fr.maxlego08.sarah.requests.UpdateRequest;
 import fr.maxlego08.sarah.requests.UpsertRequest;
@@ -72,6 +73,15 @@ public class SchemaBuilder implements Schema {
             MigrationManager.registerSchema(schema);
         }
         consumer.accept(schema);
+        return schema;
+    }
+
+    public static Schema drop(Migration migration, String tableName) {
+        SchemaBuilder schema = new SchemaBuilder(tableName, SchemaType.DROP);
+        if (migration != null) {
+            schema.migration = migration;
+            MigrationManager.registerSchema(schema);
+        }
         return schema;
     }
 
@@ -528,7 +538,7 @@ public class SchemaBuilder implements Schema {
                 return new Date(((Number) value).longValue());
             }
 
-            if (value instanceof Timestamp){
+            if (value instanceof Timestamp) {
                 return (Date) value;
             }
             return null;
@@ -555,6 +565,11 @@ public class SchemaBuilder implements Schema {
     @Override
     public Migration getMigration() {
         return migration;
+    }
+
+    @Override
+    public void setMigration(Migration migration) {
+        this.migration = migration;
     }
 
     @Override
@@ -639,6 +654,9 @@ public class SchemaBuilder implements Schema {
             case CREATE:
                 executor = new CreateRequest(this);
                 break;
+            case DROP:
+                executor = new DropTableRequest(this);
+                break;
             case ALTER:
                 executor = new AlterRequest(this);
                 break;
@@ -687,9 +705,5 @@ public class SchemaBuilder implements Schema {
     @Override
     public SchemaType getSchemaType() {
         return this.schemaType;
-    }
-
-    public void setMigration(Migration migration) {
-        this.migration = migration;
     }
 }

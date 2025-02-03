@@ -15,6 +15,8 @@ import fr.maxlego08.sarah.requests.CreateRequest;
 import fr.maxlego08.sarah.requests.DeleteRequest;
 import fr.maxlego08.sarah.requests.DropTableRequest;
 import fr.maxlego08.sarah.requests.InsertRequest;
+import fr.maxlego08.sarah.requests.ModifyRequest;
+import fr.maxlego08.sarah.requests.RenameExecutor;
 import fr.maxlego08.sarah.requests.UpdateRequest;
 import fr.maxlego08.sarah.requests.UpsertRequest;
 
@@ -53,6 +55,7 @@ public class SchemaBuilder implements Schema {
     private final List<WhereCondition> whereConditions = new ArrayList<>();
     private final List<JoinCondition> joinConditions = new ArrayList<>();
     private final List<SelectCondition> selectColumns = new ArrayList<>();
+    private String newTableName;
     private String orderBy;
     private Migration migration;
     private boolean isDistinct;
@@ -62,12 +65,53 @@ public class SchemaBuilder implements Schema {
         this.schemaType = schemaType;
     }
 
+    public static Schema copy(String tableName, Schema oldSchema) {
+        SchemaBuilder schema = new SchemaBuilder(tableName, oldSchema.getSchemaType());
+
+        schema.columns.addAll(oldSchema.getColumns());
+        schema.primaryKeys.addAll(oldSchema.getPrimaryKeys());
+        schema.foreignKeys.addAll(oldSchema.getForeignKeys());
+        schema.whereConditions.addAll(oldSchema.getWhereConditions());
+        schema.joinConditions.addAll(oldSchema.getJoinConditions());
+        schema.selectColumns.addAll(oldSchema.getSelectColumns());
+        schema.orderBy = oldSchema.getOrderBy();
+        schema.migration = oldSchema.getMigration();
+        schema.isDistinct = oldSchema.isDistinct();
+        schema.newTableName = oldSchema.getNewTableName();
+
+        return schema;
+    }
+
+    public static Schema rename(String tableName, String newTableName) {
+        return rename(null, tableName, newTableName);
+    }
+
+    public static Schema rename(Migration migration, String tableName, String newTableName) {
+        SchemaBuilder schema = new SchemaBuilder(tableName, SchemaType.RENAME);
+        schema.newTableName = newTableName;
+        if (migration != null) {
+            schema.migration = migration;
+            MigrationManager.registerSchema(schema);
+        }
+        return schema;
+    }
+
     public static Schema create(Migration migration, String tableName, Class<?> template) {
         return create(migration, tableName, ConsumerConstructor.createConsumerFromTemplate(template, null));
     }
 
     public static Schema create(Migration migration, String tableName, Consumer<Schema> consumer) {
         SchemaBuilder schema = new SchemaBuilder(tableName, SchemaType.CREATE);
+        if (migration != null) {
+            schema.migration = migration;
+            MigrationManager.registerSchema(schema);
+        }
+        consumer.accept(schema);
+        return schema;
+    }
+
+    public static Schema modify(Migration migration, String tableName, Consumer<Schema> consumer) {
+        SchemaBuilder schema = new SchemaBuilder(tableName, SchemaType.MODIFY);
         if (migration != null) {
             schema.migration = migration;
             MigrationManager.registerSchema(schema);
@@ -651,6 +695,12 @@ public class SchemaBuilder implements Schema {
     public int execute(DatabaseConnection databaseConnection, Logger logger) throws SQLException {
         Executor executor;
         switch (this.schemaType) {
+            case RENAME:
+                executor = new RenameExecutor(this);
+                break;
+            case MODIFY:
+                executor = new ModifyRequest(this);
+                break;
             case CREATE:
                 executor = new CreateRequest(this);
                 break;
@@ -705,5 +755,20 @@ public class SchemaBuilder implements Schema {
     @Override
     public SchemaType getSchemaType() {
         return this.schemaType;
+    }
+
+    @Override
+    public List<WhereCondition> getWhereConditions() {
+        return whereConditions;
+    }
+
+    @Override
+    public List<SelectCondition> getSelectColumns() {
+        return selectColumns;
+    }
+
+    @Override
+    public String getNewTableName() {
+        return newTableName;
     }
 }

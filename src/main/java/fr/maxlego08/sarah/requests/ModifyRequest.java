@@ -5,6 +5,7 @@ import fr.maxlego08.sarah.DatabaseConnection;
 import fr.maxlego08.sarah.SchemaBuilder;
 import fr.maxlego08.sarah.database.Executor;
 import fr.maxlego08.sarah.database.Schema;
+import fr.maxlego08.sarah.database.SchemaType;
 import fr.maxlego08.sarah.logger.Logger;
 
 import java.sql.SQLException;
@@ -21,7 +22,7 @@ public class ModifyRequest implements Executor {
     public int execute(DatabaseConnection databaseConnection, DatabaseConfiguration databaseConfiguration, Logger logger) {
 
         String tmpTableName = schema.getTableName() + "_tmp";
-        Schema tmpSchema = SchemaBuilder.copy(tmpTableName, schema);
+        Schema tmpSchema = SchemaBuilder.copy(tmpTableName, SchemaType.CREATE, schema);
 
         try {
             tmpSchema.execute(databaseConnection, logger);

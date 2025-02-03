@@ -65,8 +65,8 @@ public class SchemaBuilder implements Schema {
         this.schemaType = schemaType;
     }
 
-    public static Schema copy(String tableName, Schema oldSchema) {
-        SchemaBuilder schema = new SchemaBuilder(tableName, oldSchema.getSchemaType());
+    public static Schema copy(String tableName, SchemaType newSchemaType, Schema oldSchema) {
+        SchemaBuilder schema = new SchemaBuilder(tableName, newSchemaType);
 
         schema.columns.addAll(oldSchema.getColumns());
         schema.primaryKeys.addAll(oldSchema.getPrimaryKeys());

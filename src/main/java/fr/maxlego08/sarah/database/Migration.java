@@ -28,6 +28,10 @@ public abstract class Migration {
         SchemaBuilder.drop(this, table);
     }
 
+    protected void modify(String table, Consumer<Schema> consumer) {
+        SchemaBuilder.modify(this, table, consumer);
+    }
+
     protected void createOrAlter(String table, Consumer<Schema> consumer) {
         this.create(table, consumer);
         this.alter = true;

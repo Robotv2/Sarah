@@ -3,6 +3,7 @@ package fr.maxlego08.sarah.database;
 public enum SchemaType {
 
     CREATE,
+    MODIFY,
     DROP,
     UPSERT,
     UPDATE,
@@ -10,6 +11,7 @@ public enum SchemaType {
     SELECT,
     SELECT_COUNT,
     DELETE,
-    ALTER
+    ALTER,
+    RENAME,
 
 }

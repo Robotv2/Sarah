@@ -3,6 +3,8 @@ package fr.maxlego08.sarah.database;
 import fr.maxlego08.sarah.DatabaseConnection;
 import fr.maxlego08.sarah.conditions.ColumnDefinition;
 import fr.maxlego08.sarah.conditions.JoinCondition;
+import fr.maxlego08.sarah.conditions.SelectCondition;
+import fr.maxlego08.sarah.conditions.WhereCondition;
 import fr.maxlego08.sarah.logger.Logger;
 
 import java.sql.PreparedStatement;
@@ -151,5 +153,11 @@ public interface Schema {
     Schema addColumn(ColumnDefinition column);
 
     void setMigration(Migration migration);
+
+    List<WhereCondition> getWhereConditions();
+
+    List<SelectCondition> getSelectColumns();
+
+    String getNewTableName();
 }
 
